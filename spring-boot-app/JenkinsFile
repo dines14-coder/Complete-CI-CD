@@ -49,20 +49,29 @@ pipeline {
             GIT_REPO_NAME = "Manifest_repo"
             GIT_USER_NAME = "dines14-coder"
         }
-        steps {
-           sh ' cd Manifest_repo'
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    git config user.email "dvrdineshdvrdinesh728@gmail.com"
-                    git config user.name "dines14-coder"
-                    BUILD_NUMBER=${BUILD_NUMBER}
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" springboot-app-manifest/deployment.yml
-                    git add springboot-app-manifest/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
+       steps {
+                script {
+                    // Clone the GitHub repository into the Jenkins workspace
+                    checkout([$class: 'GitSCM', 
+                              branches: [[name: 'main']], 
+                              userRemoteConfigs: [[url: "https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME}.git"]]])
+                    
+                    // Navigate to the cloned repository directory
+                    dir('Manifest_repo') {
+                        sh '''
+                            git config user.email "dvrdineshdvrdinesh728@gmail.com"
+                            git config user.name "dines14-coder"
+                            BUILD_NUMBER=${BUILD_NUMBER}
+                            pwd 
+                            ls -l
+                            sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" springboot-app-manifest/deployment.yml
+                            git add springboot-app-manifest/deployment.yml
+                            git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+                            git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+                        '''
+                    }
+                }
             }
-        }
     }
   }
 }
