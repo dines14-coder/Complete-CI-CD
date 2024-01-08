@@ -57,10 +57,6 @@ pipeline {
                     BUILD_NUMBER=${BUILD_NUMBER}
                     pwd 
                     ls -l
-                    dir('/var/lib/jenkins/workspace/test-pipeline/Manifest_repo') {
-                        sh 'pwd'
-                        sh 'ls -l'
-                    }
                     sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" springboot-app-manifest/deployment.yml
                     git add springboot-app-manifest/deployment.yml
                     git commit -m "Update deployment image to version ${BUILD_NUMBER}"
